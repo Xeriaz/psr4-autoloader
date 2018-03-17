@@ -12,7 +12,7 @@ class Psr4Autoloader
             $this->prefixes[$namespace_prefix] = [];
         }
 
-        $this->prefixes[$namespace_prefix] = $path;
+        array_push($this->prefixes[$namespace_prefix], $path);
 
         return $this;
     }
@@ -28,30 +28,25 @@ class Psr4Autoloader
 
         while (false !== $pos = strrpos($classPrefix, '\\')) {
             $classPrefix = substr($class, 0, $pos + 1);
-
             $relative_class = substr($class, $pos + 1);
-
             $mapped_file = $this->loadMappedFile($classPrefix, $relative_class);
+
             if ($mapped_file) {
                 return $mapped_file;
             }
 
             $classPrefix = rtrim($classPrefix, '\\');
-
         }
-
         return false;
-
     }
 
     protected function loadMappedFile(string $prefix, string $relative_class)
     {
-
         if (false === isset($this->prefixes[$prefix])) {
             return false;
         }
 
-        foreach ((array) $this->prefixes[$prefix] as $base_dir) {
+        foreach ($this->prefixes[$prefix] as $base_dir) {
 
             $file = $base_dir
                 . str_replace('\\', '/', $relative_class)
@@ -61,7 +56,6 @@ class Psr4Autoloader
                 return $file;
             }
         }
-
         return false;
     }
 
@@ -71,10 +65,8 @@ class Psr4Autoloader
             require_once $file;
             return true;
         }
-
         return false;
     }
-
 }
 
 $autoloader = new Psr4Autoloader();
